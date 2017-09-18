@@ -338,7 +338,7 @@ proc toEvent(kind: cint, evt: ref TbEvent): Event =
 
           else: raise newException(UnknownKeyError, $evt.key)
 
-      Event(kind: evtKind, mods: mods, ch: ch, sym: sym)
+      Event(kind: EventType.Key, mods: mods, ch: ch, sym: sym)
 
     of EventType.Mouse:
       var action: Mouse
@@ -355,11 +355,11 @@ proc toEvent(kind: cint, evt: ref TbEvent): Event =
         of TB_KEY_MOUSE_WHEEL_DOWN: action = Mouse.WheelDown
         else: raise newException(UnknownMouseActionError, $evt.key)
 
-      Event(kind: evtKind, action: action,
+      Event(kind: EventType.Mouse, action: action,
             x: cast[uint](evt.x), y: cast[uint](evt.y))
 
     of EventType.Resize:
-      Event(kind: evtKind, w: cast[uint](evt.w), h: cast[uint](evt.h))
+      Event(kind: EventType.Resize, w: cast[uint](evt.w), h: cast[uint](evt.h))
 
     of EventType.None:
       Event(kind: evtKind)
