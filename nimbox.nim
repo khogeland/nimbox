@@ -1,5 +1,8 @@
 include nimbox/termbox
 
+import
+    unicode
+
 type
   Nimbox* = object of RootObj
 
@@ -60,7 +63,7 @@ type
     of EventType.Key:
       mods*: seq[Modifier]
       sym*: Symbol
-      ch*: char
+      ch*: Rune
     of EventType.Mouse:
       action*: Mouse
       x*, y*: uint
@@ -161,8 +164,8 @@ proc print*[T](_: Nimbox, x, y: int, text: string,
     bgInt = cast[uint16](ord(bg))
     yInt = cast[cint](y)
 
-  for i, c in pairs(text):
-    tbChangeCell(cast[cint](x + i), yInt, ord(c), fgInt, bgInt)
+  for i, c in pairs(text.toRunes()):
+    tbChangeCell(cast[cint](x + i), yInt, uint32(c), fgInt, bgInt)
 
 proc print*(nb: Nimbox, x, y: int, text: string,
             fg: Color = clrDefault, bg: Color = clrDefault) =
@@ -190,13 +193,13 @@ proc toEvent(kind: cint, evt: ref TbEvent): Event =
     of EventType.Key:
       var
         mods: seq[Modifier] = @[]
-        ch = chr(evt.ch)
+        ch = Rune(evt.ch)
         sym = Symbol.Character
 
       if (evt.`mod` and TB_MOD_ALT) != 0:
           mods.add(Modifier.Alt)
 
-      if ch == '\0':
+      if uint32(ch) == 0:
         case evt.key:
           # Function keys
           of TB_KEY_F1: sym = Symbol.F1
@@ -226,105 +229,105 @@ proc toEvent(kind: cint, evt: ref TbEvent): Event =
 
           # Control + key
           of TB_KEY_CTRL_2:
-            ch = '2'
+            ch = Rune('2')
             mods.add(Modifier.Ctrl)
           of TB_KEY_CTRL_4:
-            ch = '4'
+            ch = Rune('4')
             mods.add(Modifier.Ctrl)
           of TB_KEY_CTRL_5:
-            ch = '5'
+            ch = Rune('5')
             mods.add(Modifier.Ctrl)
           of TB_KEY_CTRL_6:
-            ch = '6'
+            ch = Rune('6')
             mods.add(Modifier.Ctrl)
           of TB_KEY_CTRL_7:
-            ch = '7'
+            ch = Rune('7')
             mods.add(Modifier.Ctrl)
           of TB_KEY_CTRL_8:
-            ch = '8'
+            ch = Rune('8')
             sym = Symbol.Backspace
             mods.add(Modifier.Ctrl)
 
           of TB_KEY_CTRL_A:
-            ch = 'A'
+            ch = Rune('A')
             mods.add(Modifier.Ctrl)
           of TB_KEY_CTRL_B:
-            ch = 'B'
+            ch = Rune('B')
             mods.add(Modifier.Ctrl)
           of TB_KEY_CTRL_C:
-            ch = 'C'
+            ch = Rune('C')
             mods.add(Modifier.Ctrl)
           of TB_KEY_CTRL_D:
-            ch = 'D'
+            ch = Rune('D')
             mods.add(Modifier.Ctrl)
           of TB_KEY_CTRL_E:
-            ch = 'E'
+            ch = Rune('E')
             mods.add(Modifier.Ctrl)
           of TB_KEY_CTRL_F:
-            ch = 'F'
+            ch = Rune('F')
             mods.add(Modifier.Ctrl)
           of TB_KEY_CTRL_G:
-            ch = 'G'
+            ch = Rune('G')
             mods.add(Modifier.Ctrl)
           of TB_KEY_CTRL_H:
-            ch = 'H'
+            ch = Rune('H')
             sym = Symbol.Backspace
             mods.add(Modifier.Ctrl)
           of TB_KEY_CTRL_I:
-            ch = 'I'
+            ch = Rune('I')
             sym = Symbol.Tab
             mods.add(Modifier.Ctrl)
           of TB_KEY_CTRL_J:
-            ch = 'J'
+            ch = Rune('J')
             mods.add(Modifier.Ctrl)
           of TB_KEY_CTRL_K:
-            ch = 'K'
+            ch = Rune('K')
             mods.add(Modifier.Ctrl)
           of TB_KEY_CTRL_L:
-            ch = 'L'
+            ch = Rune('L')
             mods.add(Modifier.Ctrl)
           of TB_KEY_CTRL_M:
-            ch = 'M'
+            ch = Rune('M')
             sym = Symbol.Enter
             mods.add(Modifier.Ctrl)
           of TB_KEY_CTRL_N:
-            ch = 'N'
+            ch = Rune('N')
             mods.add(Modifier.Ctrl)
           of TB_KEY_CTRL_O:
-            ch = 'O'
+            ch = Rune('O')
             mods.add(Modifier.Ctrl)
           of TB_KEY_CTRL_P:
-            ch = 'P'
+            ch = Rune('P')
             mods.add(Modifier.Ctrl)
           of TB_KEY_CTRL_Q:
-            ch = 'Q'
+            ch = Rune('Q')
             mods.add(Modifier.Ctrl)
           of TB_KEY_CTRL_R:
-            ch = 'R'
+            ch = Rune('R')
             mods.add(Modifier.Ctrl)
           of TB_KEY_CTRL_S:
-            ch = 'S'
+            ch = Rune('S')
             mods.add(Modifier.Ctrl)
           of TB_KEY_CTRL_T:
-            ch = 'T'
+            ch = Rune('T')
             mods.add(Modifier.Ctrl)
           of TB_KEY_CTRL_U:
-            ch = 'U'
+            ch = Rune('U')
             mods.add(Modifier.Ctrl)
           of TB_KEY_CTRL_V:
-            ch = 'V'
+            ch = Rune('V')
             mods.add(Modifier.Ctrl)
           of TB_KEY_CTRL_W:
-            ch = 'W'
+            ch = Rune('W')
             mods.add(Modifier.Ctrl)
           of TB_KEY_CTRL_X:
-            ch = 'X'
+            ch = Rune('X')
             mods.add(Modifier.Ctrl)
           of TB_KEY_CTRL_Y:
-            ch = 'Y'
+            ch = Rune('Y')
             mods.add(Modifier.Ctrl)
           of TB_KEY_CTRL_Z:
-            ch = 'Z'
+            ch = Rune('Z')
             mods.add(Modifier.Ctrl)
 
           # Spacing
@@ -333,7 +336,7 @@ proc toEvent(kind: cint, evt: ref TbEvent): Event =
           # Control
           of TB_KEY_ESC:
             sym = Symbol.Escape
-            ch = '['
+            ch = Rune('[')
             mods.add(Modifier.Ctrl)
 
           else: raise newException(UnknownKeyError, $evt.key)
